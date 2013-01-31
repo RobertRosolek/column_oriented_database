@@ -1,0 +1,31 @@
+# SELECT log(a * a + 1)
+
+compute {
+  source {
+    scan {
+      column: 0
+      type: DOUBLE
+    }
+  }
+  expressions {
+    operator: LOG
+    children {
+      operator: ADD
+      children {
+        operator: MULTIPLY
+        children {
+          operator: COLUMN
+          column_id: 0
+        }
+        children {
+          operator: COLUMN
+          column_id: 0
+        }
+      }
+      children {
+        operator: CONSTANT
+        constant_int32: 1
+      }
+    }
+  }
+}

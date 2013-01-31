@@ -1,0 +1,42 @@
+# SELECT SUM(a) GROUP BY (a > 1.)
+
+compute {
+  source {
+    group_by {
+      aggregations {
+        type: SUM
+        aggregated_column: 0
+      }
+      group_by_column: 1
+      source {
+        compute {
+          source {
+            scan {
+              column: 0
+              type: DOUBLE
+            }
+          }
+          expressions {
+            operator: COLUMN
+            column_id: 0
+          }
+          expressions {
+            operator: GREATER
+            children {
+              operator: COLUMN
+              column_id: 0
+            }
+            children {
+              operator: CONSTANT
+              constant_double: 1
+            }
+          }
+        }
+      }
+    }
+  }
+  expressions {
+    operator: COLUMN
+    column_id: 1
+  }
+}

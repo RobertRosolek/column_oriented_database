@@ -1,0 +1,58 @@
+# SELECT a * a - 2 * a * b + b * b
+
+compute {
+  source {
+    scan {
+      column: 0
+      type: INT
+      column: 1
+      type: INT
+    }
+  }
+  expressions {
+    operator: SUBTRACT
+    children {
+      operator: ADD
+      children {
+        operator: MULTIPLY
+        children {
+          operator: COLUMN
+          column_id: 0
+        }
+        children {
+          operator: COLUMN
+          column_id: 0
+        }
+      }
+      children {
+      operator: MULTIPLY
+        children {
+          operator: COLUMN
+          column_id: 1
+        }
+        children {
+          operator: COLUMN
+          column_id: 1
+        }
+      }
+    }
+    children {
+      operator: MULTIPLY
+      children {
+        operator: MULTIPLY
+        children {
+          operator: COLUMN
+          column_id: 0
+        }
+        children {
+          operator: COLUMN
+          column_id: 1
+        }
+      }
+      children {
+        operator: CONSTANT
+        constant_int32: 2
+      }
+    }
+  }
+}

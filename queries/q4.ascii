@@ -1,0 +1,45 @@
+# SELECT 1 / (a - b) WHERE a != b
+
+compute {
+  source {
+    filter {
+      source {
+        scan {
+          column: 0
+          type: INT
+          column: 1
+          type: INT
+        }
+      }
+      expression {
+        operator: NOT_EQUAL
+        children {
+          operator: COLUMN
+          column_id: 0
+        }
+        children {
+          operator: COLUMN
+          column_id: 1
+        }
+      }
+    }
+  }
+  expressions {
+    operator: FLOATING_DIVIDE
+    children {
+      operator: CONSTANT
+      constant_double: 1.
+    }
+    children {
+      operator: SUBTRACT
+      children {
+        operator: COLUMN
+        column_id: 0
+      }
+      children {
+        operator: COLUMN
+        column_id: 1
+      }
+    }
+  }
+}

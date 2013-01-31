@@ -1,0 +1,14 @@
+# SELECT a, b, c, d, e FROM {source}
+
+scan {
+  column: 0
+  type: BOOL
+  column: 1
+  type: BOOL
+  column: 2
+  type: DOUBLE
+  column: 3
+  type: DOUBLE
+  column: 4
+  type: INT
+}

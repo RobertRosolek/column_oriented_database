@@ -1,0 +1,94 @@
+# SELECT a, IF (a > 0, COUNT(), -COUNT()) as cnt FROM [source] 
+#  WHERE b > 2.0 && b < 10.0 GROUP BY a HAVING cnt > 4.
+
+filter {
+  expression {
+    operator: GREATER
+    children {
+      operator: COLUMN
+      column_id: 1
+    }
+    children {
+      operator: CONSTANT
+      constant_int32: 4
+    }
+  }
+  source {
+    compute {  # a, IF (a > 0, COUNT(), -COUNT())
+      expressions {
+        operator: COLUMN
+        column_id: 0
+      }
+      expressions {
+        operator: IF
+        children {
+          operator: GREATER
+          children {
+            operator: COLUMN
+            column_id: 0
+          }
+          children {
+            operator: CONSTANT
+            constant_int32: 0
+          }
+        }
+        children {
+          operator: COLUMN
+          column_id: 1
+        }
+        children {
+          operator: NEGATE
+          children {
+            operator: COLUMN
+            column_id: 1
+          }
+        }
+      }
+      source {
+        group_by {
+          group_by_column: 0
+          aggregations {
+            type: COUNT
+          }
+          source {
+            filter { # SCAN a, b WHERE b > 2.0 && b < 10.0
+              expression {
+                operator: AND
+                children {                
+                  operator: GREATER
+                  children {
+                    operator: COLUMN
+                    column_id: 1
+                  }
+                  children {
+                    operator: CONSTANT
+                    constant_double: 2.0
+                  }                  
+                }
+                children {
+                  operator: LOWER
+                  children {
+                    operator: COLUMN
+                    column_id: 1
+                  }
+                  children {
+                    operator: CONSTANT
+                    constant_double: 10.0
+                  }
+                }
+              }
+              source {  # SCAN a, b
+                scan {
+                  column: 0
+                  type: INT
+                  column: 1
+                  type: DOUBLE
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,84 @@
+# SELECT IF(a + b < 0, - (a+b), a+b) WHERE (a > 0 || b > 0)
+# Note: Optimized to
+# SELECT IF(c < 0, -c, c) FROM
+#   SELECT a+b WHERE a > 0 || b > 0
+
+compute {
+  source {
+    compute {
+      source {
+        filter {
+          source {
+            scan {
+              column: 0
+              type: DOUBLE
+              column: 1
+              type: DOUBLE
+            }
+          }
+          expression {
+            operator: OR
+            children {
+              operator: GREATER
+              children {
+                operator: COLUMN
+                column_id: 0
+              }
+              children {
+                operator: CONSTANT
+                constant_double: 0.
+              }
+            }
+            children {
+              operator: GREATER
+              children {
+                operator: COLUMN
+                column_id: 1
+              }
+              children {
+                operator: CONSTANT
+                constant_double: 0.
+              }
+            }
+          }
+        }
+      }
+      expressions {
+        operator: ADD
+        children {
+          operator: COLUMN
+          column_id: 0
+        }
+        children {
+          operator: COLUMN
+          column_id: 1
+        }
+      }
+    }
+  }
+  expressions {
+    operator: IF
+    children {
+      operator: LOWER
+      children {
+        operator: COLUMN
+        column_id: 0
+      }
+      children {
+        operator: CONSTANT
+        constant_double: 0.
+      }
+    }
+    children {
+      operator: NEGATE
+      children {
+        operator: COLUMN
+        column_id: 0
+      }
+    }
+    children {
+      operator: COLUMN
+      column_id: 0
+    }
+  }
+}

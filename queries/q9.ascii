@@ -1,0 +1,112 @@
+# Var(a) GROUP BY b, that is:
+# SELECT SUM(a * a) / COUNT() - (SUM(a) / COUNT) ^ 2 HAVING COUNT() > 1 GROUP BY b
+
+compute {
+  source {
+    compute {
+      source {
+        filter {
+          source {
+            group_by {
+              source {
+                compute {
+                  source {
+                    scan {
+                      column: 0
+                      type: DOUBLE
+                      column: 1
+                      type: INT
+                    }
+                  }
+                  expressions {
+                    operator: COLUMN
+                    column_id: 0
+                  }
+                  expressions {
+                    operator: COLUMN
+                    column_id: 1
+                  }
+                  expressions {
+                    operator: MULTIPLY
+                    children {
+                      operator: COLUMN
+                      column_id: 0
+                    }
+                    children {
+                      operator: COLUMN
+                      column_id: 0
+                    }
+                  }
+                }
+              }
+              group_by_column: 1
+              aggregations {
+                type: COUNT
+              }
+              aggregations {
+                type: SUM
+                aggregated_column: 0
+              }
+              aggregations {
+                type: SUM
+                aggregated_column: 2
+              }
+            }
+          }
+          expression {
+            operator: GREATER
+            children {
+              operator: COLUMN
+              column_id: 1
+            }
+            children {
+              operator: CONSTANT
+              constant_int32: 1
+            }
+          }
+        }
+      }
+      expressions {
+        operator: FLOATING_DIVIDE
+        children {
+          operator: COLUMN
+          column_id: 3
+        }
+        children {
+          operator: COLUMN
+          column_id: 1
+        }
+      }
+      expressions {
+        operator: FLOATING_DIVIDE
+        children {
+          operator: COLUMN
+          column_id: 2
+        }
+        children {
+          operator: COLUMN
+          column_id: 1
+        }
+      }
+    }
+  }
+  expressions {
+    operator: SUBTRACT
+    children {
+      operator: COLUMN
+      column_id: 0
+    }
+    children {
+      operator: MULTIPLY
+      children {
+        operator: COLUMN
+        column_id: 1
+      }
+      children {
+        operator: COLUMN
+        column_id: 1
+      }
+    }
+  }
+}
+

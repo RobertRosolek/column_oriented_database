@@ -1,0 +1,54 @@
+# SELECT a WHERE a == b GROUP BY a HAVING COUNT() > 1
+
+compute {
+  source {
+    filter {
+      source {
+        group_by {
+          source {
+            filter {
+              source {
+                scan {
+                  column: 0
+                  type: INT
+                  column: 1
+                  type: INT
+                }
+              }
+              expression {
+                operator: EQUAL
+                children {
+                  operator: COLUMN
+                  column_id: 0
+                }
+                children {
+                  operator: COLUMN
+                  column_id: 1
+                }
+              }
+            }
+          }
+          group_by_column: 0
+          aggregations {
+            type: COUNT
+          }
+        }
+      }
+      expression {
+        operator: GREATER
+        children {
+          operator: COLUMN
+          column_id: 1
+        }
+        children {
+          operator: CONSTANT
+          constant_int32: 1
+        }
+      }
+    }
+  }
+  expressions {
+    operator: COLUMN
+    column_id: 0
+  }
+}

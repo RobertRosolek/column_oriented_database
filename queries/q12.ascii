@@ -1,0 +1,53 @@
+# Stacked aggregations
+
+group_by {
+  source {
+    group_by {
+      source {
+        filter {
+          source {
+            group_by {
+              source {
+                scan {
+                  column: 0
+                  type: INT
+                  column: 1
+                  type: INT
+                  column: 2
+                  type: DOUBLE
+                }
+              }
+              group_by_column: 1
+              group_by_column: 0
+              aggregations {
+                type: SUM
+                aggregated_column: 2
+              }
+            }
+          }
+          expression {
+            operator: GREATER
+            children {
+              operator: COLUMN
+              column_id: 2
+            }
+            children {
+              operator: CONSTANT
+              constant_double: 0.
+            }
+          }
+        }
+      }
+      group_by_column: 0
+      aggregations {
+        type: SUM
+        aggregated_column: 1
+      }
+    }
+  }
+  group_by_column: 1
+  aggregations {
+    type: SUM
+    aggregated_column: 0
+  }
+}

@@ -1,0 +1,53 @@
+# SELECT 1., TRUE, d WHERE (a && b) == !c
+
+compute {
+  source {
+    filter {
+      source {
+        scan {
+          column: 0
+          type: BOOL
+          column: 1
+          type: BOOL
+          column: 2
+          type: BOOL
+          column: 3
+          type: INT
+        }
+      }
+      expression {
+        operator: EQUAL
+        children {
+          operator: AND
+          children {
+            operator: COLUMN
+            column_id: 0
+          }
+          children {
+            operator: COLUMN
+            column_id: 1
+          }
+        }
+        children {
+          operator: NOT
+          children {
+            operator: COLUMN
+            column_id: 2
+          }
+        }
+      }
+    }
+  }
+  expressions {
+    operator: CONSTANT
+    constant_double: 1.
+  }
+  expressions {
+    operator: CONSTANT
+    constant_bool: true
+  }
+  expressions {
+    operator: COLUMN
+    column_id: 3
+  }
+}
